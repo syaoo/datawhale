@@ -51,4 +51,5 @@ plt.savefig("./pic/m2.png")
 在面向对象方法中，我们先创建了一个figure和axes对象，二者是绘图的基础，之后在axes中添加了折线、散点、图例等元素。下图展示了Matplotlib绘制图像的基本元素，其中Figure->Axes->Axis->Tick四个层级，下级元素包含在上级元素之中。其中figure和axes可以理解为画板和画板上的一张纸，画板上可以放多张画纸，而图像则主要在画纸上绘制。
 
 ![](./pic/anatomy.png)
+
 [^1]: [Usage Guide](https://matplotlib.org/stable/tutorials/introductory/usage.html#the-object-oriented-interface-and-the-pyplot-interface)

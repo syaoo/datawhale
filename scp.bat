@@ -1,0 +1,1 @@
+scp -r -i C:\Users\Syao\Downloads\ssh-key-2021-09-15.key .\docs\ ubuntu@129.146.169.238:~/caddy
