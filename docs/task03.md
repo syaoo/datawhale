@@ -1,0 +1,1 @@
+布局、主要有figure的大小；axes的位置、大小、个数等。figure的大小可以使用figsize控制，如plt.subplot()中可以使用figsize参数控制figure的大小，其第一、二个参数分别指定axes的行、列数。matplotlib.figure.Figure.add_subplot()可以在指定行列单元中某个位置添加一个axes，如add_subplot(232)，是在2行3列的网格的第二个网格处添加axes。此外还可控制是否为极坐标、投影方式等。对于非均匀布局的axes，可以借助GridSpec实现。
