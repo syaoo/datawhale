@@ -61,6 +61,7 @@ fig.savefig("test.png")
 canvas.print_figure("test.png")
 ```
 输出图像：
+
 ![](./pic/test.png)
 
 上面演示中，出现了Figure、Axes等容器类型的Artist。
@@ -83,15 +84,8 @@ fig,(ax1, ax2) = plt.subplots(1, 2)
 
 Figure是Axes、Line2D、Text等Artist的集合、canvas则是控制了这些Artist如何显示。
 
-下面的代码示例中展示了使用Tkinter或Qt界面显示图像的方法：
+下面的两个函数示例中展示了使用Tkinter或Qt界面显示图像的方法：
 ```python
-import sys
-import random
-
-# ref: [Embedding in Tk — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/gallery/user_interfaces/embedding_in_tk_sgskip.html)
-
-from matplotlib.figure import Figure
-
 def showQt(fig:Figure):
     """
     在Qt界面中显示图像
@@ -131,49 +125,34 @@ def showTk(fig:Figure):
     from matplotlib.backends.backend_tkagg import (
         FigureCanvas, NavigationToolbar2Tk as NavigationToolbar)
 
-    # 以下代码是使图片能够即时显示在桌面，如果使有plt.figure()实例化figure类，可以自动
-    root = tkinter.Tk()
+    root = tkinter.Tk() # 生成Tkinter窗口
     root.wm_title("Figure 1")
-
-    # 以下代码是使图片能够即时显示在桌面，如果使有plt.figure()实例化figure类，可以自动
 
     canvas = FigureCanvas(fig, master=root)  # A tk.DrawingArea.
     canvas.draw()
 
     # pack_toolbar=False will make it easier to use a layout manager later on.
-    toolbar = NavigationToolbar(canvas, root, pack_toolbar=False)
+    toolbar = NavigationToolbar(canvas, root, pack_toolbar=False) # 生成Tk工具栏
     toolbar.update()
 
     toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
     canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
     root.mainloop() # 与plt.show()作用类似，启动GUI loop使画的图想显示
-
-fig = Figure()
-ax = fig.add_subplot(111) # 添加一个axes到fig
-p1 = ax.bar([1,2,3,4,5],[1,4,5,3,1])
-
-ax.set_xlabel('Xrs', size='small')
-ax.set_ylabel('Yrs', size='small')
-# 设置图形标题
-ax.set_title('A graph title', size='small')
-
-# set the edgecolor and facecolor of the axes rectangle to be the same
-ax.set_facecolor('grey')
-
-labels = ax.get_xticklabels() + ax.get_yticklabels()
-for label in labels:
-    label.set_size('x-small')
-
-for r in p1:
-    r.set_edgecolor('red')
-
-fig.savefig("savedpic.png") #直接保存图像
-
-showTk(fig) # 使用Tk后端显示图像
-showQt(fig) # 使用Qt后端显示图像
 ```
-目前的matplotlib对支持Qt4、Qt5(Pyqt4、Pyqt5、PySide2，PySide6预计在3.5版本中开始支持)。
+图像显示效果如下：
+
+1. Qt:
+
+![使用Qt显示图像](./pic/matplotlib-qtui.png)
+
+2. Tk:
+
+![使用Tk显示图像](./pic/matplotlib-tkui.png)
+
+完整代码:[matplotlib_selfdefine.py](./prog/matplotlib_selfdefine.py)
+
+当前版本(version=3.4.3)的matplotlib支持Qt4、Qt5(即支持PyQt4、PyQt5、PySide2，PyQt6和PySide6预计在3.5版本中开始支持)。
 
 在，使用PySide2/6如出现下面错误：
 ```
@@ -191,19 +170,105 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']=pluging_path
 
 Axes是绘图操作的主要对象，其创建方法有：
 
+#### pyplot函数
+1. [`pyplot.subplot()`](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html?highlight=pyplot%20subplot#matplotlib.pyplot.subplot) 添加一个axes到当前figure，或获取一个已存在的axes。该方法是对`Figure.add_subplot()`的封装。
+```python
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
-pyplot.subplot()
-pyplot.axes()
-pyplot.subplots()
+# 下面三种写法等价
+ax1 = plt.subplot(221) #仅适用于个位数值
+ax1 = plt.subplot(2, 2, 1)
+spec = gridspec.GridSpec(ncols=2, nrows=2)
+ax1 = plt.subplot(spec[0,0])
 
-Figure.add_subplot()
-Figure.add_axes()
-Figure.subplots()
+# 添加一个没有边框的axes
+ax2 = plt.subplot(222, frameon=False)
+ax2.plot([1,2,3, 6])
+# 添加一个极坐标的axes
+plt.subplot(223, projection='polar')
 
-matplotlib.axes.Axes()
+# 添加一个红色背景、与ax2共享x轴的axes
+plt.subplot(224, sharex=ax2, facecolor='red')
+plt.show()
+```
+
+2. [`pyplot.axes()`](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.axes.html#matplotlib.pyplot.axes) 添加一个axes到当前figure，并置为当前Axes。
+```python
+# 在整个当前figure中创建新的axes
+plt.axes()
+
+# 根据指定的位置、大小及其他参数在当前figure创建一个axes。(left, bottom, width, height)是指定axes左下角位置和长、宽的元组，其数值以小数表示。
+plt.axes((left, bottom, width, height), facecolor='w')
+```
+
+3. [`pyplot.subplots()`](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots) 会创建一个figure及一组axes。
+```python
+# 创建一个figure和一个axes
+fig, ax = plt.subplots()
+
+# 创建一个figure和四个极坐标的axes
+fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
+```
+
+#### 使用Figure类的方法
+
+下面介绍的方法中，除了位置参数还有其他如坐标系、背景色、是否共享X、Y轴等其他参数、属性可以设置，具体可点击连接查看文档说明。
+
+4. [`Figure.add_subplot()`](https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure.add_subplot) 向figure实例中添加一个axes。
+```python
+fig = plt.figure()
+#下面三种写法效果相同
+ax=fig.add_subplot()
+fig.add_subplot(1,1,1)
+fig.add_subplot(111)
+
+fig.delaxes(ax)
+ax2.plot([1,2,3])
+# 向fig中添加已存在的axes
+fig.add_subplot(ax2)
+```
+
+5. [`Figure.add_axes()`](https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure.add_axes) 向Figure实例中添加一个axes。
+```python
+fig = plt.figure()
+ax=fig.add_axes((0.1,0.2,0.4,0.6)) # 添加一个左下角在(0.1,0.2)、宽为0.4、长为0.6的axes
+fig.delaxes(ax)
+# 向fig中添加已存在的axes
+fig.add_axes(ax)
+```
+
+6. [`Figure.subplots()`](https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure.subplots) 向Figure实例中添加一组axes。
+```python
+# subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
+fig = plt.figure()
+
+# 添加1行2列、2个Axes并共享Y轴。
+ax1, ax2 = fig.subplots(1, 2, sharey=True)
+```
+
+Axes容器的常见属性有：
+- `artists`: Artist实例列表 
+- `patch`: Axes所在的矩形实例 
+- `collections`: Collection实例 
+- `images`: Axes图像 
+- `legends`: Legend 实例 
+- `lines`: Line2D 实例 
+- `patches`: Patch 实例 
+- `texts`: Text 实例 
+- `xaxis`: matplotlib.axis.XAxis 实例 
+- `yaxis`: matplotlib.axis.YAxis 实例
+
+Axis常用绘图方法有`plot`, `hist`, `scatter`, `bar`, `barh`, `pie`等
+Axis中绘制直线：水平方向的`axhline`和`hlines`, 垂直方向的`axvline`和`vlines`, 任意方向的`axline`。有`ax`前缀的方法绘制的直线默认贯穿整个坐标区域，以小数的形式指定线段的长度；没有`ax`前缀的线的长度有给定的参数确定，且可以同时绘制多条直线。
 
 Axes的各类绘图方法、如`plot()`、`scatter()`等参考：[matplotlib.axes — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/api/axes_api.html?highlight=axes#plotting)
 
+Axes的属性设置，如坐标轴的可见性、网格、刻度范围等等可参考[matplotlib.axes — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/api/axes_api.html?highlight=axes#appearance)
+
+---
+
+**参考**
 
 1. [Artist tutorial — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/tutorials/intermediate/artists.html)
 2. [Wayback Machine](http://web.archive.org/web/20100830233506/http://matplotlib.sourceforge.net/leftwich_tut.txt)

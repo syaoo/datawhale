@@ -207,50 +207,118 @@
 
 
 
-import tkinter
+# import tkinter
 
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
-# Implement the default Matplotlib key bindings.
-from matplotlib.backend_bases import key_press_handler
+# from matplotlib.backends.backend_tkagg import (
+#     FigureCanvasTkAgg, NavigationToolbar2Tk)
+# # Implement the default Matplotlib key bindings.
+# from matplotlib.backend_bases import key_press_handler
+# from matplotlib.figure import Figure
+# import matplotlib
+import matplotlib.pyplot as plt
+# import numpy as np
+
+# def set_size(w,h, ax=None):
+#     """ w, h: width, height in inches """
+#     if not ax: ax=plt.gca()
+#     l = ax.figure.subplotpars.left
+#     r = ax.figure.subplotpars.right
+#     t = ax.figure.subplotpars.top
+#     b = ax.figure.subplotpars.bottom
+#     figw = float(w)/(r-l)
+#     figh = float(h)/(t-b)
+#     ax.figure.set_size_inches(figw, figh)
+
+# x = np.arange(0,2*np.pi,0.1)
+# y = np.sin(x)
+
+# fig=plt.figure(figsize=(10,11))
+# ax1 = plt.subplot(3,2,1)
+# ax1.plot(x,y)
+# ax1.set_title("3,2,1")
+# ax2 = plt.subplot(322)
+# ax2.plot(x,y)
+# ax2.set_title("322")
+# ax3 = plt.subplot(3,2,(3,4))
+# ax3.plot(x,y)
+# ax3.set_title("3,2,(3,4)")
+# ax4 = plt.subplot(3,2,(5,6))
+# ax4.plot(x,y)
+# ax4.set_title("3,2,(5,6)")
+# plt.delaxes(ax1)
+# plt.axes(ax1)
+# plt.show()
+
+"""
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+# 下面三种写法等价
+ax1 = plt.subplot(221)
+ax1 = plt.subplot(2, 2, 1)
+spec = gridspec.GridSpec(ncols=2, nrows=2)
+ax1 = plt.subplot(spec[0,0])
+
+# 添加一个没有边框的axes
+ax2 = plt.subplot(222, frameon=False)
+ax2.plot([1,2,3, 6])
+# 添加一个极坐标的axes
+plt.subplot(223, projection='polar')
+
+# 添加一个红色背景、与ax2共享x轴的axes
+plt.subplot(224, sharex=ax2, facecolor='red')
+plt.show()
+"""
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+"""
+# First create some toy data:
+x = np.linspace(0, 2*np.pi, 400)
+y = np.sin(x**2)
+
+# Create just a figure and only one subplot
+fig, ax = plt.subplots()
+ax.plot(x, y)
+ax.set_title('Simple plot')
+
+# Create two subplots and unpack the output array immediately
+f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+ax1.plot(x, y)
+ax1.set_title('Sharing Y axis')
+ax2.scatter(x, y)
+
+# Create four polar axes and access them through the returned array
+fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
+axs[0, 0].plot(x, y)
+axs[1, 1].scatter(x, y)
+
+# Share a X axis with each column of subplots
+plt.subplots(2, 2, sharex='col')
+
+# Share a Y axis with each row of subplots
+plt.subplots(2, 2, sharey='row')
+
+# Share both X and Y axes with all subplots
+plt.subplots(2, 2, sharex='all', sharey='all')
+
+# Note that this is the same as
+plt.subplots(2, 2, sharex=True, sharey=True)
+
+# Create figure number 10 with a single subplot
+# and clears it if it already exists.
+fig, ax = plt.subplots(num=10, clear=True)
+plt.show()
+"""
 from matplotlib.figure import Figure
 
-import numpy as np
+fg = Figure(constrained_layout=False,tight_layout=True)
+ax = fg.subplots(3, 1)
 
+for i in range(3):
+    ax[i].plot(range(5+5*i))
 
-root = tkinter.Tk()
-root.wm_title("Embedding in Tk")
+fg.suptitle('lots of lines')
 
-fig = Figure(figsize=(5, 4), dpi=100)
-t = np.arange(0, 3, .01)
-fig.add_subplot(111).plot(t, 2 * np.sin(2 * np.pi * t))
-
-canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
-canvas.draw()
-canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
-
-toolbar = NavigationToolbar2Tk(canvas, root)
-toolbar.update()
-canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
-
-
-def on_key_press(event):
-    print("you pressed {}".format(event.key))
-    key_press_handler(event, canvas, toolbar)
-
-
-canvas.mpl_connect("key_press_event", on_key_press)
-
-
-def _quit():
-    root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
-
-
-button = tkinter.Button(master=root, text="Quit", command=_quit)
-button.pack(side=tkinter.BOTTOM)
-
-tkinter.mainloop()
-# If you put root.destroy() here, it will cause an error if the window is
-# closed with the window manager.
+fg.savefig("example2.png")

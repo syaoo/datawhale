@@ -1,9 +1,6 @@
 import sys
-import random
-
-# ref: [Embedding in Tk — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/gallery/user_interfaces/embedding_in_tk_sgskip.html)
-
 from matplotlib.figure import Figure
+# ref: [Embedding in Tk — Matplotlib 3.4.3 documentation](https://matplotlib.org/stable/gallery/user_interfaces/embedding_in_tk_sgskip.html)
 
 def showQt(fig:Figure):
 	"""
@@ -54,30 +51,27 @@ def showQt(fig:Figure):
 	app.exec_()
 
 def showTk(fig:Figure):
-	"""
-	在Tk界面中显示图像
-	"""
-	import tkinter
-	from matplotlib.backends.backend_tkagg import (
+    """
+    在Tk界面中显示图像
+    """
+    import tkinter
+    from matplotlib.backends.backend_tkagg import (
         FigureCanvas, NavigationToolbar2Tk as NavigationToolbar)
 
-	# 以下代码是使图片能够即时显示在桌面，如果使有plt.figure()实例化figure类，可以自动
-	root = tkinter.Tk()
-	root.wm_title("Figure 1")
+    root = tkinter.Tk() # 生成Tkinter窗口
+    root.wm_title("Figure 1")
 
-	# 以下代码是使图片能够即时显示在桌面，如果使有plt.figure()实例化figure类，可以自动
+    canvas = FigureCanvas(fig, master=root)  # A tk.DrawingArea.
+    canvas.draw()
 
-	canvas = FigureCanvas(fig, master=root)  # A tk.DrawingArea.
-	canvas.draw()
+    # pack_toolbar=False will make it easier to use a layout manager later on.
+    toolbar = NavigationToolbar(canvas, root, pack_toolbar=False) # 生成Tk工具栏
+    toolbar.update()
 
-	# pack_toolbar=False will make it easier to use a layout manager later on.
-	toolbar = NavigationToolbar(canvas, root, pack_toolbar=False)
-	toolbar.update()
+    toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
-	toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-	canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
-
-	root.mainloop() # 与plt.show()作用类似，启动GUI loop使画的图想显示
+    root.mainloop() # 与plt.show()作用类似，启动GUI loop使画的图想显示
 
 fig = Figure()
 ax = fig.add_subplot(111) # 添加一个axes到fig
